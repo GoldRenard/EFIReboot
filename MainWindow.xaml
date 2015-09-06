@@ -1,44 +1,85 @@
-﻿<Controls:MetroWindow x:Class="EFIReboot.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        xmlns:local="clr-namespace:EFIReboot"
-        mc:Ignorable="d"
-        BorderBrush="{DynamicResource AccentColorBrush}"
-        BorderThickness="1"
-        Title="EFIREBOOT" Height="350" Width="550">
+﻿<!--
+// ======================================================================
+// EFI REBOOT
+// Copyright (C) 2015 Ilya Egorov (goldrenard@gmail.com)
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see<http://www.gnu.org/licenses /> .
+// ======================================================================
+-->
+<Controls:MetroWindow x:Class="EFIReboot.MainWindow"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                      xmlns:local="clr-namespace:EFIReboot"
+                      mc:Ignorable="d"
+                      BorderBrush="{DynamicResource AccentColorBrush}"
+                      BorderThickness="1"
+                      Icon="appicon.ico"
+                      WindowStartupLocation="CenterScreen"
+                      Title="EFI REBOOT" Height="350" Width="550">
     <Controls:MetroWindow.Resources>
-        <ContextMenu  x:Key="RowMenu" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-            <MenuItem Header="Reboot" CommandParameter="{Binding}" Command="{Binding ParentViewModel.RebootCommand}" />
-            <MenuItem Header="Mark as BootNext" CommandParameter="{Binding}" Command="{Binding ParentViewModel.BootNextCommand}" />
-        </ContextMenu>
-        <Style x:Key="DefaultRowStyle" TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MetroDataGridRow}">
-            <Setter Property="ContextMenu" Value="{StaticResource RowMenu}" />
-        </Style>
+        <ResourceDictionary>
+            <ContextMenu  x:Key="RowMenu" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                <MenuItem Header="Reboot" CommandParameter="{Binding}" Command="{Binding ParentViewModel.RebootCommand}" />
+                <MenuItem Header="Mark as BootNext" CommandParameter="{Binding}" Command="{Binding ParentViewModel.BootNextCommand}" />
+                <Separator />
+                <MenuItem Header="Create shortcut" CommandParameter="{Binding}" Command="{Binding ParentViewModel.CreateShortcutCommand}" />
+            </ContextMenu>
+            <Style x:Key="DefaultRowStyle" TargetType="{x:Type DataGridRow}" BasedOn="{StaticResource MetroDataGridRow}">
+                <Setter Property="ContextMenu" Value="{StaticResource RowMenu}" />
+                <Setter Property="Height" Value="35" />
+            </Style>
+        </ResourceDictionary>
     </Controls:MetroWindow.Resources>
-    <GroupBox Header="Entries">
-        <DataGrid x:Name="BootEntries"
+    <Controls:MetroWindow.IconTemplate>
+        <DataTemplate>
+            <Border Background="{DynamicResource HighlightBrush}">
+                <Controls:MultiFrameImage Margin="2"
+                    Width="{TemplateBinding Width}"
+                    Height="{TemplateBinding Height}"
+                    Source="{TemplateBinding Content}"
+                    RenderOptions.EdgeMode="{Binding IconEdgeMode, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}}"
+                    RenderOptions.BitmapScalingMode="{Binding IconBitmapScalingMode, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Controls:MetroWindow}}}" />
+            </Border>
+        </DataTemplate>
+    </Controls:MetroWindow.IconTemplate>
+    <Controls:MetroWindow.RightWindowCommands>
+        <Controls:WindowCommands>
+            <Button Content="About &amp; Help" Click="About_Click" />
+        </Controls:WindowCommands>
+    </Controls:MetroWindow.RightWindowCommands>
+    <DataGrid x:Name="BootEntries"
                   ItemsSource="{Binding Items}"
                   IsReadOnly="True"
                   Background="Transparent"
                   AutoGenerateColumns="False"
                   SelectionMode="Single"
                   RowStyle="{StaticResource DefaultRowStyle}">
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="MouseDoubleClick">
-                    <i:InvokeCommandAction Command="{Binding MouseDoubleClickCommand}" 
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="MouseDoubleClick">
+                <i:InvokeCommandAction Command="{Binding MouseDoubleClickCommand}"
                                            CommandParameter="{Binding ElementName=BootEntries, Path=SelectedItem}" />
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Id" Binding="{Binding Path=Id}" />
-                <DataGridTextColumn Header="Name" Binding="{Binding Path=Name}" />
-                <DataGridTextColumn Header="Status" Binding="{Binding Path=Status}" />
-                <DataGridTextColumn Header="Internal name" Binding="{Binding Path=InternalName}" />
-            </DataGrid.Columns>
-        </DataGrid>
-    </GroupBox>
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
+        <DataGrid.Columns>
+            <DataGridTextColumn Header="Id" Binding="{Binding Path=Id}" />
+            <DataGridTextColumn Header="Name" Binding="{Binding Path=Name}" />
+            <DataGridTextColumn Header="Status" Binding="{Binding Path=Status}" />
+            <DataGridTextColumn Header="Internal name" Binding="{Binding Path=InternalName}" />
+        </DataGrid.Columns>
+    </DataGrid>
 </Controls:MetroWindow>
