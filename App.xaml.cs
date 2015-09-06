@@ -1,15 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
+using EFIReboot.WinAPI;
 
 namespace EFIReboot {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
+
     public partial class App : Application {
+
+        private void Application_Startup(object sender, StartupEventArgs e) {
+            if (!EFIHelper.IsSupported()) {
+                MessageBox.Show("Only UEFI platform is supported", "Not supported", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown();
+                return;
+            }
+            try {
+                PrivelegeHelper.ObtainSystemPrivileges();
+            } catch (InvalidOperationException ex) {
+                MessageBox.Show(string.Format("Unable to obtain system privileges: {0}", ex.Message), "Application error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown();
+            }
+        }
     }
 }
