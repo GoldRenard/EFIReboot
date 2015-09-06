@@ -135,6 +135,10 @@
   <ItemGroup>
     <Resource Include="appicon.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="MahApps.Metro.dll" />
+    <EmbeddedResource Include="System.Windows.Interactivity.dll" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

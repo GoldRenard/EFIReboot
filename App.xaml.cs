@@ -18,6 +18,7 @@
 
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using EFIReboot.Model;
 using EFIReboot.WinAPI;
@@ -26,6 +27,18 @@ using MahApps.Metro;
 namespace EFIReboot {
 
     public partial class App : Application {
+
+        public App() {
+            AppDomain.CurrentDomain.AssemblyResolve += (s, a) => {
+                string resourceName = "EFIReboot." + new AssemblyName(a.Name).Name + ".dll";
+                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName)) {
+                    byte[] assemblyData = new Byte[stream.Length];
+                    stream.Read(assemblyData, 0, assemblyData.Length);
+                    return Assembly.Load(assemblyData);
+                }
+            };
+
+        }
 
         private void Application_Startup(object sender, StartupEventArgs e) {
             if (!EFIHelper.IsSupported()) {
