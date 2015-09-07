@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace EFIReboot.EFI {
 
     /// <summary>
-    /// An UEFI Load Option (3.1.3 section of UEFI Specification)
+    /// An UEFI EFI_LOAD_OPTION (3.1.3 section of UEFI Specification)
     /// </summary>
     public struct EFI_LOAD_OPTION {
         public const UInt32 LOAD_OPTION_ACTIVE = 0x00000001;
@@ -30,15 +31,10 @@ namespace EFIReboot.EFI {
             set;
         }
 
-        public byte[] FilePathList {
+        public List<EFI_DEVICE_PATH_PROTOCOL> FilePathList {
             get;
             set;
         }
-
-        /*public EFI_DEVICE_PATH_PROTOCOL[] FilePathList {
-            get;
-            set;
-        }*/
 
         public byte[] OptionalData {
             get;
@@ -59,7 +55,10 @@ namespace EFIReboot.EFI {
                     builder.Append(Convert.ToChar(chr));
                 }
                 LoadOption.Description = builder.ToString();
-                LoadOption.FilePathList = reader.ReadBytes(LoadOption.FilePathListLength);
+                LoadOption.FilePathList = EFI_DEVICE_PATH_PROTOCOL.ReadList(reader);
+
+                // Manually seek to optional data position because EFI_DEVICE_PATH_PROTOCOL sequence not always property aligned
+                reader.BaseStream.Seek(sizeof(UInt32) + sizeof(UInt16) + (LoadOption.Description.Length + 1) * sizeof(UInt16) + LoadOption.FilePathListLength, SeekOrigin.Begin);
                 LoadOption.OptionalData = reader.ReadBytes((int)(lenght - reader.BaseStream.Position));
             }
             return LoadOption;
