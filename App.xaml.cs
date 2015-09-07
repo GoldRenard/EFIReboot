@@ -20,6 +20,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
+using EFIReboot.EFI;
 using EFIReboot.Model;
 using EFIReboot.WinAPI;
 using MahApps.Metro;
@@ -37,11 +38,10 @@ namespace EFIReboot {
                     return Assembly.Load(assemblyData);
                 }
             };
-
         }
 
         private void Application_Startup(object sender, StartupEventArgs e) {
-            if (!EFIHelper.IsSupported()) {
+            if (!EFIEnvironment.IsSupported()) {
                 MessageBox.Show("Only UEFI platform is supported", "Not supported", MessageBoxButton.OK, MessageBoxImage.Error);
                 Shutdown();
                 return;
@@ -66,7 +66,7 @@ namespace EFIReboot {
             if (args.Length > 1) {
                 ushort entryId = 0;
                 if (ushort.TryParse(args[1], out entryId)) {
-                    BootEntry entry = EFIHelper.GetEntries().FirstOrDefault(e => e.Id == entryId);
+                    BootEntry entry = EFIEnvironment.GetEntries().FirstOrDefault(e => e.Id == entryId);
                     if (entry != null) {
                         DoReboot(entry, !args.Contains("quiet"));
                         return true;
@@ -83,7 +83,7 @@ namespace EFIReboot {
                     return;
                 }
             }
-            EFIHelper.SetBootNext(entry);
+            EFIEnvironment.SetBootNext(entry);
             if (!NativeMethods.ExitWindowsEx(ExitWindows.Reboot,
                     ShutdownReason.MajorApplication |
             ShutdownReason.MinorInstallation |

@@ -73,11 +73,13 @@
     <Compile Include="AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="EFI\EFI_DEVICE_PATH_PROTOCOL.cs" />
+    <Compile Include="EFI\EFI_LOAD_OPTION.cs" />
     <Compile Include="Model\BootEntry.cs" />
     <Compile Include="Model\BootEntryEventHandler.cs" />
     <Compile Include="Model\DelegateCommand.cs" />
     <Compile Include="Model\MainViewModel.cs" />
-    <Compile Include="WinAPI\EFIHelper.cs" />
+    <Compile Include="EFI\EFIEnvironment.cs" />
     <Compile Include="WinAPI\ExitWindows.cs" />
     <Compile Include="WinAPI\FirmwareType.cs" />
     <Compile Include="WinAPI\PrivelegeHelper.cs" />

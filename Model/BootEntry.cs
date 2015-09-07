@@ -18,13 +18,28 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
+using EFIReboot.EFI;
 
 namespace EFIReboot.Model {
 
     public class BootEntry : INotifyPropertyChanged {
-        public const string INTERNAL_FORMAT = "Boot{0:X4}";
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        private EFI_LOAD_OPTION _LoadOption;
+
+        public EFI_LOAD_OPTION LoadOption {
+            get {
+                return _LoadOption;
+            }
+            set {
+                if (!_LoadOption.Equals(value)) {
+                    _LoadOption = value;
+                    NotifyPropertyChanged("LoadOption");
+                    NotifyPropertyChanged("Name");
+                }
+            }
+        }
 
         private ushort _Id = 0;
 
@@ -41,17 +56,9 @@ namespace EFIReboot.Model {
             }
         }
 
-        private string _Name;
-
         public string Name {
             get {
-                return _Name;
-            }
-            set {
-                if (_Name != value) {
-                    _Name = value;
-                    NotifyPropertyChanged("Name");
-                }
+                return LoadOption.Description;
             }
         }
 

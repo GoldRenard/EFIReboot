@@ -19,6 +19,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Media;
+using EFIReboot.EFI;
 using EFIReboot.Model;
 using EFIReboot.WinAPI;
 using MahApps.Metro.Controls;
@@ -34,7 +35,7 @@ namespace EFIReboot {
 
         public MainWindow() {
             InitializeComponent();
-            ViewModel = new MainViewModel(EFIHelper.GetEntries());
+            ViewModel = new MainViewModel(EFIEnvironment.GetEntries());
             ViewModel.RebootClick += OnRebootClick;
             ViewModel.BootNextClick += OnBootNextClick;
             ViewModel.CreateShortcutClick += OnCreateShortcut;
@@ -49,7 +50,7 @@ namespace EFIReboot {
         }
 
         private void OnBootNextClick(object sender, BootEntryEventArgs e) {
-            EFIHelper.SetBootNext(e.BootEntry);
+            EFIEnvironment.SetBootNext(e.BootEntry);
             ViewModel.MarkAsNext(e.BootEntry);
         }
 
@@ -58,7 +59,7 @@ namespace EFIReboot {
         }
 
         public void OnCreateShortcut(object sender, BootEntryEventArgs e) {
-            string message = string.Format("Do you want to create shortcut to {0} WITHOUT reboot confirmation?", e.BootEntry.Name);
+            string message = string.Format("Do you want to create shortcut to {0} WITHOUT reboot confirmation?", e.BootEntry);
             bool hasConfirmation = MessageBoxResult.Yes != MessageBox.Show(message, "Reboot confirmation", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
