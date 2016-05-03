@@ -44,22 +44,24 @@ namespace EFIReboot.EFI {
         public static EFI_LOAD_OPTION ConvertOption(byte[] data, int lenght) {
             EFI_LOAD_OPTION LoadOption = new EFI_LOAD_OPTION();
             using (BinaryReader reader = new BinaryReader(new MemoryStream(data, 0, lenght))) {
-                LoadOption.Attributes = reader.ReadUInt32();
-                LoadOption.FilePathListLength = reader.ReadUInt16();
-                StringBuilder builder = new StringBuilder();
-                while (true) {
-                    ushort chr = reader.ReadUInt16();
-                    if (chr == 0) {
-                        break;
+                while (reader.BaseStream.Position != reader.BaseStream.Length) {
+                    LoadOption.Attributes = reader.ReadUInt32();
+                    LoadOption.FilePathListLength = reader.ReadUInt16();
+                    StringBuilder builder = new StringBuilder();
+                    while (true) {
+                        ushort chr = reader.ReadUInt16();
+                        if (chr == 0) {
+                            break;
+                        }
+                        builder.Append(Convert.ToChar(chr));
                     }
-                    builder.Append(Convert.ToChar(chr));
-                }
-                LoadOption.Description = builder.ToString();
-                LoadOption.FilePathList = EFI_DEVICE_PATH_PROTOCOL.ReadList(reader);
+                    LoadOption.Description = builder.ToString();
+                    LoadOption.FilePathList = EFI_DEVICE_PATH_PROTOCOL.ReadList(reader);
 
-                // Manually seek to optional data position because EFI_DEVICE_PATH_PROTOCOL sequence not always property aligned
-                reader.BaseStream.Seek(sizeof(UInt32) + sizeof(UInt16) + (LoadOption.Description.Length + 1) * sizeof(UInt16) + LoadOption.FilePathListLength, SeekOrigin.Begin);
-                LoadOption.OptionalData = reader.ReadBytes((int)(lenght - reader.BaseStream.Position));
+                    // Manually seek to optional data position because EFI_DEVICE_PATH_PROTOCOL sequence not always property aligned
+                    reader.BaseStream.Seek(sizeof(UInt32) + sizeof(UInt16) + (LoadOption.Description.Length + 1) * sizeof(UInt16) + LoadOption.FilePathListLength, SeekOrigin.Begin);
+                    LoadOption.OptionalData = reader.ReadBytes((int)(lenght - reader.BaseStream.Position));
+                }
             }
             return LoadOption;
         }

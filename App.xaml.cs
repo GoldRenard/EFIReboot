@@ -30,6 +30,7 @@ namespace EFIReboot {
     public partial class App : Application {
 
         public App() {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             AppDomain.CurrentDomain.AssemblyResolve += (s, a) => {
                 string resourceName = "EFIReboot." + new AssemblyName(a.Name).Name + ".dll";
                 using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName)) {
@@ -90,6 +91,23 @@ namespace EFIReboot {
             ShutdownReason.FlagPlanned)) {
                 MessageBox.Show("Unable to reboot your computer", "Reboot failure", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void ShowException(Exception e) {
+            if (e == null) {
+                Application.Current.Shutdown();
+                return;
+            }
+            string errorMessage = string.Format("An application error occurred.\n\n{0} ({1}):\n{2}", e, e.Message, e.StackTrace);
+            MessageBox.Show(errorMessage, "Application Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e) {
+            ShowException(e.ExceptionObject as Exception);
+        }
+
+        private void Application_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e) {
+            ShowException(e.Exception);
         }
     }
 }
